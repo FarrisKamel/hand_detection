@@ -11,9 +11,16 @@ import numpy as np
 import uuid     # Used to generate Unique identifier
 import os       # OS library for python
 from time import sleep
+from configparser import ConfigParser
 
 mp_drawing = mp.solutions.drawing_utils     # Easier for rendering landmarks
 mp_hands = mp.solutions.hands               
+
+# extract all the data configs set up by .ini file
+config = ConfigParser()
+config.read("parser.ini")
+data = config["DEFAULT"]
+bluriness_threshold = data["image_blurriness_threshold"]
 
 TASKS_QUEUE = Queue()
 
@@ -94,7 +101,7 @@ class HandDetectionThread(BackgroundThread):
 
     # Function used to determine if the image if blurry
     def isBlurry(self, image):
-        threshold = 50                                             # Set a Threshold
+        threshold = int(bluriness_threshold)                        # Set a Threshold
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)              # Convert to the color needed
         laplace_gray = cv2.Laplacian(gray, cv2.CV_64F).var()        # Preform laplace
         is_blurry = False                                           # Bool to see if image blurry
